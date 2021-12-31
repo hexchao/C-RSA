@@ -276,11 +276,7 @@ for epoch in range(iteration):
         for k in range(Node):
             inputs[k] = data_iid[k][rand_i[i]]
             labels[k] = label_iid[k][rand_i[i]]
-        running_loss0 = 0.0
         optimizer0.zero_grad()
-        outputs0 = net0(inputs[0])
-        loss0 = criterion(outputs0, labels[0])
-        loss0.backward()
         for k in range(Node):
             optimizer[k].zero_grad()
             outputs[k] = net[k](inputs[k])
@@ -355,18 +351,15 @@ for epoch in range(iteration):
         net0.conv2.bias.grad = net0_conv2_bias_grad
         # 对所有蹭的梯度做聚合替换
         optimizer0.step()
-        running_loss0 += loss0.item()
         for k in range(Node):
             optimizer[k].step()
     accur = Accuracy(net0, data_test, label_test)
     accuracy_list.append(accur.cpu().numpy().tolist())
-    print('net0',epoch+1,running_loss0/steps,accuracy_list[epoch])
-    running_loss.append(running_loss0/steps)
+    print('net0',epoch+1,accuracy_list[epoch])
 print("----------finished training---------")
 
 
 
-pd.DataFrame(running_loss).to_csv('./running_loss_CRSA1011.csv')
 pd.DataFrame(accuracy_list).to_csv('./accuracy_list_CRSA1011.csv')
 
 
